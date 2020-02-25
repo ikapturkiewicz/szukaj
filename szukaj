@@ -1,0 +1,52 @@
+#!/bin/bash
+
+if [ "$#" -ne 5 ] && [ "$#" -ne 3 ]; then
+echo "Wrong number of arguments: $#, proper usage: <command> [ -c directory ] regex extension directory "
+exit 1
+fi
+
+if [ "$#" -eq 3 ]; then
+
+ if [[ ! "$2" =~ [\.\w+] ]]; then
+ echo "Wrong extension format for: $2, proper extension format example is: .txt"
+ exit 1
+ fi
+
+ if [ ! -d "$3" ]; then
+ echo "$3 is not a directory"
+ exit 1
+ fi
+
+ find "$3" \! -readable -type f -o \! -executable -type d 2>/dev/null | xargs echo "You do not have access to following files/directories: "
+
+find "$3" -readable -type f -name "*$2" -print 2>/dev/null | xargs grep -l "$1"
+exit 1
+fi
+
+if [ "$#" -eq 5 ]; then
+
+if [[ ! "$4" =~ [\.\w+] ]]; then
+ echo "Wrong extension format for: $4, proper extension format example is: .txt"
+ exit 1
+ fi
+
+ if [ ! -d "$5" ]; then
+ echo "$ is not a directory"
+ exit 1
+ fi
+
+find "$5" \! -readable -type f -o \! -executable -type d 2>/dev/null | xargs echo "You do not have access to following files/directories: "
+
+while getopts "c" o;
+do
+case "${o}" in
+c) find "$5" -readable -type f -name "*$4" 2>/dev/null | xargs grep -l "$3" | xargs cp -t "$2"
+;;
+*) echo "invalid argument"
+exit 1
+;;
+esac
+done
+
+exit 1
+fi
